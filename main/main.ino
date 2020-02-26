@@ -13,7 +13,7 @@ void main (){
 	int lux = 0;
 	uint16_t C02 = 0x0000;
 	int personas = 0;
-	char MACs [][N]				//el valor de la x debería ser variable (necesario ver como se hace) OJO AL STACK
+	char MACs [][N];				//el valor de la x debería ser variable (necesario ver como se hace) OJO AL STACK
 
 	while (1){
 

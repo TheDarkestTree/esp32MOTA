@@ -1,11 +1,9 @@
-
-#include //librerias necesarias
-
 //se debe indicar el pin en el que se encuentra situado el sensor.
 
 //funcion encargada de devolver los valores de la temperatura ya convertidos.
 float getTemperature(){
 
+  int sensorPIN = 22;
 	float temperatura = 0.0;
 	float valorSensor = 0.0;
 	float voltajeSal = 0.0;
