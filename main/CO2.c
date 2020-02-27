@@ -1,24 +1,18 @@
 
+/*This code must go to the main part. But first, we should decide if we are going to use this library or other option*/
 
+/*SCD30 C02sensor;
 
+uint16_t getCO2(){
+    
+  uint16_t CO2value = 0x0000;   //son un total de 16 bits
 
-/*void setup()
-{
   Wire.begin();
-
-  Serial.begin(9600);
-
-  CO2.begin(); //This will cause readings to occur every two seconds
-}
-
-void loop()
-{
-  if (airSensor.dataAvailable())
+  if (CO2sensor.dataAvailable())
   {
-    Serial.print("co2(ppm):");
-    Serial.print(CO2.getCO2());
+    CO2value = CO2sensor.getCO2();
   }
-  else
-    Serial.println("No data");
-  delay(1000);
+
+  return CO2value;
+    
 }*/

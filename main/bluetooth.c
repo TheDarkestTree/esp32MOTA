@@ -1,7 +1,6 @@
 //#include all the libraries that I wiil need to implement bluetooth
 //All this code must go to the main function.
-
-int getCount(){
+/*int getCount(){
 
 	int cont = 0;
 
@@ -31,7 +30,7 @@ int getCount(){
 }
 
 /*n this case, we are going to use the esp32 as a server and the phone as client. The esp32 will send all the data to the client(phone)*/
-
+/*
 int connect(){
 
 	//string UUID;					//this is the identifier of the service.
