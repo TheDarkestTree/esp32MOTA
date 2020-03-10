@@ -19,15 +19,15 @@
 #define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
 
-int temperature = 15;
-int lux = 0;
-uint16_t C02 = 0x0000;
+int temperature = 30;
+int lux = 2000;
+uint16_t CO2value = 0xffff;
 int personas = 0;
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 uint32_t value = 0;
 int scanTime = 5;
-int option = 0;
+int option = 48;
 
 
 BLEScan* pBLEScan;
@@ -48,11 +48,14 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
+      //BLEDevice::getPeerDevices();
       deviceConnected = true;
+      Serial.println("Device Connected");
     };
 
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
+      Serial.println("Device Disconnected");
     }
 };
 
@@ -65,7 +68,7 @@ int getTemperature(){
 
   //valorSensor = analogRead (pinT);      //pinT dependera del pin en el que se encuentre el sensor. analogRead funcion de la libreria de arduino.
   voltajeSal = (valorSensor * 5000)/ 1024;  // 5000 no comprendo de donde sale. 1024 es el correspondiente en arduino de 5v.
-  temperature = 15;//voltajeSal / 10;        //en el caso del sensor LM35 son 10mV para convertirlo en ºC.
+  temperature = 20;//voltajeSal / 10;        //en el caso del sensor LM35 son 10mV para convertirlo en ºC.
 
   return temperature;
 }
@@ -74,7 +77,7 @@ int getTemperature(){
 
 int getLux (){
 
-  int lux = 0;
+ // int lux = 0;
   
  // lux = analogRead (pinL);      //In the case of this sensor, we don't need to use any formula. It's enough reading data of the pin.
   
@@ -85,7 +88,7 @@ int getLux (){
 
 uint16_t getCO2(){
     
-  uint16_t CO2value = 0x0000;   //son un total de 16 bits
+ // uint16_t CO2value = 0x0000;   //son un total de 16 bits
 
   /*Wire.begin();
   if (CO2sensor.dataAvailable())
@@ -118,7 +121,6 @@ int getCount(){
   BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
     cont = foundDevices.getCount();
     pBLEScan->clearResults();
-    Serial.println("Aqui llego");
   return cont;
 }
 
@@ -129,14 +131,12 @@ void sendDataBLE(){
   String data;
 
   if (deviceConnected) {
-        data = "/" ;
-        data = data + getTemperature();
+        data = getTemperature();
         data = data + "/" + getLux();
         data = data + "/" + getCO2();
         data = data + "/" + getCount();
         Serial.println("Data: " + data);
         pCharacteristic->setValue(data.c_str());
-        Serial.println("Aqui también");
         pCharacteristic->notify();
         delay(600); // bluetooth stack will go into congestion, if too many packets are sent, in 6 hours test i was able to go as low as 3ms
     }
@@ -159,8 +159,8 @@ void sendDataBLE(){
 void setup (){
 
   //parametros necesarios para inicializar esp32
-  Serial.begin(115200);
-  Serial2.begin(115200, SERIAL_8N1, pinRX, pinTX);
+  Serial.begin(9600);
+  Serial2.begin(9600, SERIAL_8N1, pinRX, pinTX);
   // Create the BLE Device
   BLEDevice::init("ESP32");
   // Create the BLE Server
@@ -201,27 +201,48 @@ void setup (){
 void loop (void){
 
     String prueba;
-    //option = Serial2.read();
+    int dat;
+    if (Serial.available() > 0){
+      option = Serial.read();
+      Serial.flush();
+      Serial.println(option, DEC);
+      //Serial.println("Option: " + option);
+    }
 
     sendDataBLE();
-    /*if (option != 0){
+    if (option != 48){
    		switch(option){
-			case 1: Serial2.write((int)getTemperature());
+			  case 49: dat = Serial.write(getTemperature());
+                       Serial.flush();
+                       Serial.println("Tamaño: " + dat);
+                /*if (Serial.available()){
+                    Serial.read();
+                    Serial.flush();
+                    Serial.println(option, DEC);
+                 }*/
 		  		break;
-		  	case 2: Serial2.write(getLux());
+		  	case 50: Serial2.write(getLux());
 		  		break;
-		  	case 3: Serial2.write(getCO2());
+		  	case 51: Serial2.write(getCO2());
 		  		break;
-		  	case 4: Serial2.write(getCount());
+		  	case 52: Serial2.write(getCount());
 		  		break;
-		  	case 5: //In this case we have two options. Send all the information in only one string or sending one by one
+		  	case 53: //In this case we have two options. Send all the information in only one string or sending one by one
 		  			prueba = "Personas: " + getCount();
 		  			prueba = prueba + " CO2: " + getCO2();
 		  			prueba = prueba + " Luz: " + getLux();
-		  			prueba = prueba + " Temperature" + getTemperature();
+		  			prueba = prueba + " Temperature " + getTemperature();
+		  			Serial2.write(prueba.c_str());
+		  		break;
+		  	case 54: prueba = "Temperatura: " + getTemperature();
+		  			prueba = prueba + " Luz: " + getLux();
+		  			Serial2.write(prueba.c_str());
+		  		break;
+		  	case 55: prueba = "Temperatura: " + getTemperature();
+		  			prueba += " CO2: " + getCO2();
 		  			Serial2.write(prueba.c_str());
 		  		break;
    		}
-   	}*/
-   	delay(40);
+   	}
+   	//delay(400);
 }
