@@ -28,6 +28,7 @@ bool oldDeviceConnected = false;
 uint32_t value = 0;
 int scanTime = 5;
 String option = " ";
+bool i2c = true;
 
 
 BLEScan* pBLEScan;
@@ -90,10 +91,11 @@ uint16_t getCO2(){
     
  // uint16_t CO2value = 0x0000;   //son un total de 16 bits
 
-  /*Wire.begin();
-  if (CO2sensor.dataAvailable())
-    CO2value = CO2sensor.getCO2();*/
-
+  if (i2c){
+      if (CO2sensor.dataAvailable())
+          CO2value = CO2sensor.getCO2();
+  }
+  
   return CO2value;    
 }
 
@@ -114,8 +116,8 @@ int getCount(){
   //Scan part
 
   BLEScanResults foundDevices = pBLEScan->start(scanTime, false);
-    cont = foundDevices.getCount();
-    pBLEScan->clearResults();
+  cont = foundDevices.getCount();
+  pBLEScan->clearResults();
   return cont;
 }
 
@@ -156,6 +158,15 @@ void setup (){
   //parametros necesarios para inicializar esp32
   Serial.begin(115200);
   Serial2.begin(115200, SERIAL_8N1, pinRX, pinTX);
+
+  Wire.begin();
+
+  if (CO2sensor.begin(Wire) == false){
+    Serial.println("CO2 Sensor not connected");
+    i2c = false;
+  }
+  
+ 
   // Create the BLE Device
   BLEDevice::init("ESP32");
   // Create the BLE Server
