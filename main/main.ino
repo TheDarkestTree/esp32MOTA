@@ -1,7 +1,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
-#include <BLEScan.h>
 #include <BLEAdvertisedDevice.h>
+#include <BLEScan.h>
 #include <Wire.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <BLEServer.h>
@@ -27,7 +27,7 @@ bool deviceConnected = false;
 bool oldDeviceConnected = false;
 uint32_t value = 0;
 int scanTime = 5;
-String option;
+String option = " ";
 
 
 BLEScan* pBLEScan;
@@ -69,7 +69,7 @@ int getTemperature(){
   //valorSensor = analogRead (pinT);      //pinT dependera del pin en el que se encuentre el sensor. analogRead funcion de la libreria de arduino.
   voltajeSal = (valorSensor * 5000)/ 1024;  // 5000 no comprendo de donde sale. 1024 es el correspondiente en arduino de 5v.
   temperature = 20;//voltajeSal / 10;        //en el caso del sensor LM35 son 10mV para convertirlo en ºC.
-
+  
   return temperature;
 }
 
@@ -80,7 +80,7 @@ int getLux (){
  // int lux = 0;
   
  // lux = analogRead (pinL);      //In the case of this sensor, we don't need to use any formula. It's enough reading data of the pin.
-  
+  lux ++;
   return lux;
 }
 
@@ -105,12 +105,7 @@ int getCount(){
 
   //init ble scan
     Serial.println("Scanning...");
-  pBLEScan = BLEDevice::getScan(); //create new scan
-  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
-  pBLEScan->setActiveScan(true); //active scan uses more power, but get results faster
-  pBLEScan->setInterval(100);
-  pBLEScan->setWindow(99);  // less or equal setInterval value
-
+    
   //In this part we are going to put everything related with bluetooth scan using ble. 
   //Should confirm if We can do the scan usig classic bluetooth.
 
@@ -200,88 +195,53 @@ void setup (){
 
 void loop (void){
 
-    String prueba;
+    String data;
     int val = 0;
     if (Serial.available() > 0){
       option = Serial.readString();
       Serial.flush();
-      Serial.println(option);
+      Serial.println(option.indexOf("t"));
       //Serial.println("Option: " + option);
     }
 
     sendDataBLE();
-    /*if (option != 48){
-   		switch(option){
-			  case 49: //dat = Serial.write(option);
-                       delay(4000);
-                       nuevo = Serial.read();
-                       //Serial.println(dat);
-                       if (Serial.available())
-                          Serial.println(nuevo);
-                       Serial.flush();
-              
-                       delay (400);
-                /*if (Serial.available()){
-                    Serial.read();
-                    Serial.flush();
-                    Serial.println(option, DEC);
-                 }*/
-	/*	  		break;
-		  	case 50: Serial2.write(getLux());
-		  		break;
-		  	case 51: Serial2.write(getCO2());
-		  		break;
-		  	case 52: Serial2.write(getCount());
-		  		break;
-		  	case 53: //In this case we have two options. Send all the information in only one string or sending one by one
-		  			prueba = "Personas: " + getCount();
-		  			prueba = prueba + " CO2: " + getCO2();
-		  			prueba = prueba + " Luz: " + getLux();
-		  			prueba = prueba + " Temperature " + getTemperature();
-		  			Serial2.write(prueba.c_str());
-		  		break;
-		  	case 54: prueba = "Temperatura: " + getTemperature();
-		  			prueba = prueba + " Luz: " + getLux();
-		  			Serial2.write(prueba.c_str());
-		  		break;
-		  	case 55: prueba = "Temperatura: " + getTemperature();
-		  			prueba += " CO2: " + getCO2();
-		  			Serial2.write(prueba.c_str());
-		  		break;
-   		}
-   	}*/
     
-    if (option == "t" || option == "T"){			//sending a t or T
+    if (option.indexOf("t") >= 0 || option.indexOf("T") >= 0){			
     	//Serial2.write(getTemperature());
     	Serial.println("Temperatura");
     	val ++;
+      delay (200);
     }
 
-    if (option == "l" || option == "L"){			//sending a l or L
+    if (option.indexOf("l") >= 0 || option.indexOf("L") >= 0){			
     	//Serial2.write(getLux());
     	Serial.println("luz");
     	val ++;
+     delay (200);
     }
 
-    if (option == "c" || option == "C"){			//sending a c or C
+    if (option.indexOf("c") >= 0 || option.indexOf("C") >= 0){			
     	//Serial2.write(getCO2());
     	Serial.println("CO2");
     	val ++;
+     delay (200);
     }
 
-    if (option == "p" || option == "P"){			//sending a p or P
+    if (option.indexOf("p") >= 0 || option.indexOf("P") >= 0){			
     	//Serial2.write(getCount());
     	Serial.println("Personas");
     	val ++;
+     delay (200);
     }
 
-    if ((option == "a" || option == "A") && val == 0){		//sending an a or A
-    	prueba = "Personas: " + getCount();
-		prueba = prueba +" CO2: " + getCO2();
-		prueba = prueba + " Luz: " + getLux();
-		prueba = prueba + " Temperature " + getTemperature();
-		Serial.println(prueba);
+    if ((option.indexOf("a") >= 0 || option.indexOf("A") >= 0) && val == 0){		
+    	data = getTemperature();
+      data = data + "/" + getLux();
+      data = data + "/" + getCO2();
+      data = data + "/" + getCount();
+      Serial.println("Data: " + data);
 		//Serial2.write(prueba.c_str());
+    delay (200);
     }
 
 
