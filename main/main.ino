@@ -27,7 +27,7 @@ bool deviceConnected = false;
 bool oldDeviceConnected = false;
 uint32_t value = 0;
 int scanTime = 5;
-int option = 48;
+String option;
 
 
 BLEScan* pBLEScan;
@@ -159,8 +159,8 @@ void sendDataBLE(){
 void setup (){
 
   //parametros necesarios para inicializar esp32
-  Serial.begin(9600);
-  Serial2.begin(9600, SERIAL_8N1, pinRX, pinTX);
+  Serial.begin(115200);
+  Serial2.begin(115200, SERIAL_8N1, pinRX, pinTX);
   // Create the BLE Device
   BLEDevice::init("ESP32");
   // Create the BLE Server
@@ -201,26 +201,32 @@ void setup (){
 void loop (void){
 
     String prueba;
-    int dat;
+    int val = 0;
     if (Serial.available() > 0){
-      option = Serial.read();
+      option = Serial.readString();
       Serial.flush();
-      Serial.println(option, DEC);
+      Serial.println(option);
       //Serial.println("Option: " + option);
     }
 
     sendDataBLE();
-    if (option != 48){
+    /*if (option != 48){
    		switch(option){
-			  case 49: dat = Serial.write(getTemperature());
+			  case 49: //dat = Serial.write(option);
+                       delay(4000);
+                       nuevo = Serial.read();
+                       //Serial.println(dat);
+                       if (Serial.available())
+                          Serial.println(nuevo);
                        Serial.flush();
-                       Serial.println("Tamaño: " + dat);
+              
+                       delay (400);
                 /*if (Serial.available()){
                     Serial.read();
                     Serial.flush();
                     Serial.println(option, DEC);
                  }*/
-		  		break;
+	/*	  		break;
 		  	case 50: Serial2.write(getLux());
 		  		break;
 		  	case 51: Serial2.write(getCO2());
@@ -243,6 +249,41 @@ void loop (void){
 		  			Serial2.write(prueba.c_str());
 		  		break;
    		}
-   	}
+   	}*/
+    
+    if (option == "t" || option == "T"){			//sending a t or T
+    	//Serial2.write(getTemperature());
+    	Serial.println("Temperatura");
+    	val ++;
+    }
+
+    if (option == "l" || option == "L"){			//sending a l or L
+    	//Serial2.write(getLux());
+    	Serial.println("luz");
+    	val ++;
+    }
+
+    if (option == "c" || option == "C"){			//sending a c or C
+    	//Serial2.write(getCO2());
+    	Serial.println("CO2");
+    	val ++;
+    }
+
+    if (option == "p" || option == "P"){			//sending a p or P
+    	//Serial2.write(getCount());
+    	Serial.println("Personas");
+    	val ++;
+    }
+
+    if ((option == "a" || option == "A") && val == 0){		//sending an a or A
+    	prueba = "Personas: " + getCount();
+		prueba = prueba +" CO2: " + getCO2();
+		prueba = prueba + " Luz: " + getLux();
+		prueba = prueba + " Temperature " + getTemperature();
+		Serial.println(prueba);
+		//Serial2.write(prueba.c_str());
+    }
+
+
    	//delay(400);
 }
